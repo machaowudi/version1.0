@@ -189,34 +189,18 @@ public class ServiceActivity extends AppCompatActivity implements View.OnClickLi
                 }
                 break;
             case R.id.btn_save:
-                /*for (int i=0;i<List.size();i++) {
-                    if (musicControl.name == List.get(i)) {
-                        Toast.makeText(ServiceActivity.this," "+musicControl.name+"和"+List.get(i),Toast.LENGTH_SHORT).show();
-                        List.remove(i);//从收藏中删除，
-                        //就删除收藏界面的信息
-                        findViewById(R.id.btn_save).setBackgroundResource(R.drawable.save1);
-                        break;
-                    }
-
-                }*/
-                for (int i=0;i<List.size();i++){
-                    if (musicControl.name!= List.get(i)){
+                if(musicControl.name!=null) {
+                    if (List.indexOf(musicControl.name) == -1) {
                         findViewById(R.id.btn_save).setBackgroundResource(R.drawable.save2);
-                        Toast.makeText(ServiceActivity.this," "+musicControl.name+"和"+List.get(i),Toast.LENGTH_SHORT).show();
-                        List.remove(i);
-                        k=0;
-                    }else {
+                        List.add(musicControl.name);
+                        Toast.makeText(ServiceActivity.this, " " + musicControl.name + "和" + List.size(), Toast.LENGTH_SHORT).show();
+                    } else {
+                        List.remove(musicControl.name);
                         findViewById(R.id.btn_save).setBackgroundResource(R.drawable.save1);
-                        break;
+                        Toast.makeText(ServiceActivity.this, " " + musicControl.name + "和" + List.size(), Toast.LENGTH_SHORT).show();
                     }
                 }
-                if(k==0){
-                    //List.add(musicControl.name);//如果没收藏过，就收藏
-
-                    Toast.makeText(ServiceActivity.this," "+musicControl.name,Toast.LENGTH_SHORT).show();
-                    k=1;
-                }
-
+                else break;
 
                 break;
             case R.id.btn_exit:                //退出按钮点击事件
