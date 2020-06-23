@@ -9,10 +9,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ListAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class restore extends AppCompatActivity {
     private Button store;
+    private int a=1;
     Myhelper helper = new Myhelper(restore.this);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,25 +26,41 @@ public class restore extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-               if( helper.insert("unravel","aaa","340")==true)
+               if( helper.insert(String.valueOf(a),String.valueOf(a),"340")==true)
                {
-                   Toast.makeText(restore.this,"插入111成功",Toast.LENGTH_SHORT).show();
-                   long a=helper.count();
-                   System.out.println(a);
+                   Toast.makeText(restore.this,String.valueOf(a),Toast.LENGTH_SHORT).show();
+                   a++;
                }
             }
         });
     }
+    public void count(View v){
+        long a=helper.count();
+        String sum= helper.find(1);
+        Toast.makeText(restore.this,a+" "+sum,Toast.LENGTH_SHORT).show();
+    }
     public void check(View v){
-       String sum= helper.find(1);
+       if(helper.findname("fire")==true)
+           Toast.makeText(this,"yes",Toast.LENGTH_SHORT).show();
+       else
+           Toast.makeText(this,"yes",Toast.LENGTH_SHORT).show();
+    }
+    public void one(View v){
+        String sum= helper.find(1);
         Toast.makeText(restore.this,sum,Toast.LENGTH_SHORT).show();
     }
-
-    public void change(View v){
+    public void three(View v){
+        String sum= helper.find(3);
+        Toast.makeText(restore.this,sum,Toast.LENGTH_SHORT).show();
+    }
+    public void shoucang(View v){
             Intent intent=new Intent(restore.this,lovemusic.class);
              startActivity(intent);
     }
-
+    public void delete(View v){
+        int a=helper.delete("2");
+        Toast.makeText(this,"删除成功"+a,Toast.LENGTH_SHORT).show();
+    }
 
 
 

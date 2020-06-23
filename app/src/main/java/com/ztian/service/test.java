@@ -1,5 +1,7 @@
 package com.ztian.service;
 
+
+
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.ComponentName;
@@ -22,16 +24,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
-public class ServiceActivity extends AppCompatActivity implements View.OnClickListener
+public class test extends AppCompatActivity implements View.OnClickListener
 {
     int x=0;
     int y=1;
-    int resID;
-    ArrayList List=new ArrayList();
+    int z=0;
+    int k=0;
     Myhelper helper = new Myhelper(this);
+    ArrayList List=new ArrayList();
+    private int minute=0;
+    private int second=0;
     private static SeekBar sb;
     private static TextView tv_progress, tv_total;
-    public ObjectAnimator animator;  //动画
+    private ObjectAnimator animator;  //动画
     private MusicService.MusicControl musicControl;//音乐控制
     MyServiceConn conn;
     Intent intent;
@@ -42,7 +47,6 @@ public class ServiceActivity extends AppCompatActivity implements View.OnClickLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_service);
         init();
-
     }
     private void init() {
         tv_progress = (TextView) findViewById(R.id.tv_progress);
@@ -63,10 +67,7 @@ public class ServiceActivity extends AppCompatActivity implements View.OnClickLi
             public void onProgressChanged(SeekBar seekBar, int progress, boolean
                     fromUser) {                          //滑动条进度改变时，会调用此方法
                 if (progress == seekBar.getMax()) { //当滑动条滑到末端时，结束动画
-                    //animator.pause();                   //停止播放动画
-                    ImageView imageView=(ImageView)findViewById(R.id.iv_music);//更改图片
-                    resID = getResources().getIdentifier(musicControl.nextname, "drawable","com.ztian.service");
-                    imageView.setImageResource(resID);
+                    animator.pause();                   //停止播放动画
                 }
             }
             @Override
@@ -125,7 +126,6 @@ public class ServiceActivity extends AppCompatActivity implements View.OnClickLi
                 strSecond = second + "";
             }
             tv_progress.setText(strMinute + ":" + strSecond);
-
         }
     };
     class MyServiceConn implements ServiceConnection { //用于实现连接服务
@@ -147,73 +147,77 @@ public class ServiceActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+
             case R.id.btn_pause:               //暂停按钮点击事件
 
                 if(y==0){
                     findViewById(R.id.btn_pause).setBackgroundResource(R.drawable.start);
+
                     musicControl.pausePlay();     //暂停播放音乐
                     animator.pause();
                     y=1;
                 }              //暂停播放动画
                 else {
+
                     findViewById(R.id.btn_pause).setBackgroundResource(R.drawable.stop);
                     if(x==0){
-                        musicControl.play();//播放
-                        ImageView imageView=(ImageView)findViewById(R.id.iv_music);//更改图片
-                        resID = getResources().getIdentifier(musicControl.name, "drawable","com.ztian.service");
+
+                        musicControl.play();//继续播放
+                        ImageView imageView=(ImageView)findViewById(R.id.iv_music);
+                        int resID = getResources().getIdentifier(musicControl.name, "drawable","com.ztian.service");
                         imageView.setImageResource(resID);
                         animator.start();
                         x=1;
-
                     }
-                    musicControl.continuePlay();//继续播放
+                    if(helper.findname(musicControl.name)==true)
+                        findViewById(R.id.btn_save).setBackgroundResource(R.drawable.save2);
+                    else findViewById(R.id.btn_save).setBackgroundResource(R.drawable.save1);
+                    musicControl.continuePlay();
                     animator.start();
                     y = 0;
                 }
                 if(helper.findname(musicControl.name)==true)
                     findViewById(R.id.btn_save).setBackgroundResource(R.drawable.save2);
-                else findViewById(R.id.btn_save).setBackgroundResource(R.drawable.save1);
+                else
+                    findViewById(R.id.btn_save).setBackgroundResource(R.drawable.save1);
                 break;
-
-            case R.id.btn_next: //下一曲
+            case R.id.btn_next:
                 musicControl.next();
+
                 findViewById(R.id.btn_pause).setBackgroundResource(R.drawable.stop);
                 y=0;
-
-                //换图片
                 ImageView imageView=(ImageView)findViewById(R.id.iv_music);
-                resID = getResources().getIdentifier(musicControl.name, "drawable","com.ztian.service");
-                //Toast.makeText(ServiceActivity.this," "+musicControl.index+"和"+resID,Toast.LENGTH_SHORT).show();
+                int resID = getResources().getIdentifier(musicControl.name, "drawable","com.ztian.service");
+                Toast.makeText(this," "+musicControl.name+"和"+resID,Toast.LENGTH_SHORT).show();
                 imageView.setImageResource(resID);
                 animator.start();
-
                 if(helper.findname(musicControl.name)==true)
                     findViewById(R.id.btn_save).setBackgroundResource(R.drawable.save2);
-                else findViewById(R.id.btn_save).setBackgroundResource(R.drawable.save1);
+                else
+                    findViewById(R.id.btn_save).setBackgroundResource(R.drawable.save1);
                 break;
-
             case R.id.btn_save:
                 if(musicControl.name!=null) {
-                    if (helper.findname(musicControl.name)==false) {//收藏，图标变化，加到List中
+                    if (List.indexOf(musicControl.name) == -1) {
                         findViewById(R.id.btn_save).setBackgroundResource(R.drawable.save2);
                         String []time=tv_total.getText().toString().split(":");
                         int a=Integer.parseInt(time[0])*100+Integer.parseInt(time[1]);
-                        if(helper.insert(musicControl.name,"happy",String.valueOf(a))==true)
-                            Toast.makeText(this, "收藏成功", Toast.LENGTH_SHORT).show();
-                        //Toast.makeText(ServiceActivity.this, " " + musicControl.name + "和" + List.size(), Toast.LENGTH_SHORT).show();
-                        }
-                        else {
-                            List.remove(musicControl.name);
-                            findViewById(R.id.btn_save).setBackgroundResource(R.drawable.save1);
-                            int delete=helper.delete(musicControl.name);
-                            if(delete==1){
-                                Toast.makeText(this,"取消收藏成功",Toast.LENGTH_SHORT).show();
-                            }
-                            else   Toast.makeText(this,"您尚未收藏此歌曲",Toast.LENGTH_SHORT).show();
-
-                            // Toast.makeText(ServiceActivity.this, " " + musicControl.name + "和" + List.size(), Toast.LENGTH_SHORT).show();
+                        if(helper.insert(musicControl.name,"周深",String.valueOf(a))==true){
+                            Toast.makeText(this,"收藏成功",Toast.LENGTH_SHORT).show();
+                            List.add(musicControl.name);
                         }
 
+                    } else {
+                        List.remove(musicControl.name);
+                        findViewById(R.id.btn_save).setBackgroundResource(R.drawable.save1);
+                        int delete=helper.delete(musicControl.name);
+                        if(delete==1){
+                            Toast.makeText(this,"取消收藏成功",Toast.LENGTH_SHORT).show();
+                        }
+                        else   Toast.makeText(this,"您尚未收藏此歌曲",Toast.LENGTH_SHORT).show();
+
+                        // Toast.makeText(ServiceActivity.this, " " + musicControl.name + "和" + List.size(), Toast.LENGTH_SHORT).show();
+                    }
                 }
                 else break;
 
@@ -234,3 +238,4 @@ public class ServiceActivity extends AppCompatActivity implements View.OnClickLi
         unbind(isUnbind); //解绑服务
     }
 }
+

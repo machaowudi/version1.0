@@ -16,6 +16,13 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <Button
+            android:id="@+id/back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="返回" />
+
+        <Button
             android:id="@+id/shareWechat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -38,7 +45,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="删除收藏" />
+            android:text="取消收藏" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

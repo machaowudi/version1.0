@@ -30,10 +30,8 @@ import java.util.List;
 
 public class fragment extends Fragment {
     private String name="";
-    private String singer="";
+    private String emotion="";
     private long id=1;
-    Myhelper helper = new Myhelper(getActivity());
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -41,7 +39,7 @@ public class fragment extends Fragment {
         Bundle bundle =this.getArguments();//得到从Activity传来的数据
         if(bundle!=null){
             name = bundle.getString("name");
-            singer=bundle.getString("singer");
+            emotion=bundle.getString("emotion");
             id=bundle.getLong("id");
         }
         System.out.println(name);
@@ -56,7 +54,15 @@ public class fragment extends Fragment {
             public void onClick(View v) {
 
                 AndroidShare androidShare = new AndroidShare(getActivity());
-                androidShare.shareQQFriend("歌曲推荐","这是由" +singer+"演唱的"+name+",快来听吧！", AndroidShare.TEXT, null);
+                androidShare.shareQQFriend("歌曲推荐","这是由" +emotion+"演唱的"+name+",快来听吧！", AndroidShare.TEXT, null);
+            }
+        });
+        Button back = (Button) getActivity().findViewById(R.id.back);
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(getActivity(),ServiceActivity.class);
+                getActivity().startActivity(intent);
             }
         });
         Button button1 = (Button) getActivity().findViewById(R.id.shareWechat);
@@ -64,7 +70,7 @@ public class fragment extends Fragment {
             @Override
             public void onClick(View v) {
                 AndroidShare androidShare = new AndroidShare(getActivity());
-                androidShare.shareWeChatFriend("歌曲推荐","这是由" +singer+"演唱的"+name+",快来听吧！", AndroidShare.TEXT, null);
+                androidShare.shareWeChatFriend("歌曲推荐","这是由" +emotion+"演唱的"+name+",快来听吧！", AndroidShare.TEXT, null);
             }
         });
         Button button2 = (Button) getActivity().findViewById(R.id.shareWCF);
@@ -77,7 +83,7 @@ public class fragment extends Fragment {
                 System.out.println("qqqqq");
                // Bitmap mBitmap = BitmapFactory.decodeStream(is);
                 AndroidShare androidShare = new AndroidShare(getActivity());
-                androidShare.shareWeChatFriend(name, singer, AndroidShare.DRAWABLE,bmp);
+                androidShare.shareWeChatFriend(name, emotion, AndroidShare.DRAWABLE,bmp);
             }
         });
         Button button3 = (Button) getActivity().findViewById(R.id.delete);
@@ -91,9 +97,17 @@ public class fragment extends Fragment {
                 dialog.setPositiveButton("确定",new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        helper.delete(name);
-                        Toast.makeText(getActivity(), "收藏取消 " , Toast.LENGTH_SHORT).show();
+                        Myhelper helper = new Myhelper(getActivity());
+                        int delete=helper.delete(name);
+                        if(delete==1){
+                            Toast.makeText(getActivity(),"取消收藏成功",Toast.LENGTH_SHORT).show();
+                            Intent intent=new Intent(getActivity(),lovemusic.class);
+                            getActivity().startActivity(intent);
+                        }
+
+
                     }
+
                 });
                 dialog.setNegativeButton("取消",new DialogInterface.OnClickListener() {
                     @Override
