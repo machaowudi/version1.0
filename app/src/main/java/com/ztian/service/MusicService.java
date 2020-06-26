@@ -13,7 +13,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Message;
 import android.provider.MediaStore;
-import android.widget.Toast;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
