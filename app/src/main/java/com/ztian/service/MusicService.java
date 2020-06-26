@@ -14,7 +14,6 @@ import android.os.IBinder;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.widget.Toast;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -27,18 +26,114 @@ public class MusicService extends Service {
     private MediaPlayer player;
     private Timer timer;
     public MusicService() throws IOException {}
-
+    public String save="";
     Field[]fields=R.raw.class.getDeclaredFields();   //获取raw底下的文件
-
-
+    @Override
+    public int onStartCommand(Intent intent,int flags,int startId){
+        super.onStartCommand(intent, flags,startId);
+        save=intent.getStringExtra("name");
+        System.out.println("传回来的值："+save);
+        return super.onStartCommand(intent, flags, startId);
+    }
     @Override
     public IBinder onBind(Intent intent) {
         return new MusicControl();
     }
+
     @Override
     public void onCreate() {
         super.onCreate();
         player = new MediaPlayer();//创建音乐播放器对象
+    }
+
+    class MusicControl extends Binder {
+
+        Random r=new Random();
+        int index=r.nextInt(fields.length)+0;
+        String name="";
+        String[] list;
+        String nextname="";
+        String s=save;
+        public void play() {
+            try {
+                player.reset();//重置音乐播放器
+                //加载多媒体文件
+                /*for (int i=0;i<fields.length;i++){//点击收藏中的内容
+                    if (fields[i].getName().equals(save)){index=i;}
+
+                }*/
+                /*player = MediaPlayer.create(getApplicationContext(), fields[index].getInt(R.raw.class));
+                name=fields[index].getName();
+                player.start();//播放音乐
+                */
+
+                //从高翔端传来两个参数，一个为空，一个不为空，用不为空的那一个Emotion
+                AssetManager am = getAssets();
+                list=am.list("happy/");
+                if(save=="") {
+                    AssetFileDescriptor afd = am.openFd("happy/" + list[index]);
+                    name = list[index].substring(0, list[index].indexOf("."));
+                    if (index == list.length - 1) {
+                        nextname = list[0].substring(0, list[0].indexOf("."));
+                    } else {
+                        nextname = list[index + 1].substring(0, list[index + 1].indexOf("."));
+                    }
+                    player.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+                    player.prepare();
+                    player.start();
+                }
+                else {
+
+                    AssetFileDescriptor afd = am.openFd("happy/" + save+".mp3");
+                    name=save;
+                    player.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+                    player.prepare();
+                    player.start();
+                    System.out.println("save的值"+save);
+                    //save="";
+                    index--;
+                }
+
+                player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        next();
+
+                    }
+                });
+                addTimer();     //添加计时器
+                //Toast.makeText(MusicService.this,"有文件",Toast.LENGTH_SHORT).show();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        public void pausePlay() {
+
+            player.pause();           //暂停播放音乐
+        }
+        public void continuePlay() {
+
+            player.start();           //继续播放音乐
+        }
+        public  void stopPlay(){
+            player.stop();
+        }
+        public void seekTo(int progress) {
+            player.seekTo(progress);//设置音乐的播放位置
+        }
+        public void next(){
+            index++;
+            if(index==fields.length){
+                index=0;
+            }
+            if(player.isPlaying()){
+                stopPlay();
+            }
+            play();
+
+        }
+
     }
     public void addTimer() {        //添加计时器用于设置音乐播放器中的播放进度条
         if (timer == null) {
@@ -62,77 +157,6 @@ public class MusicService extends Service {
             //开始计时任务后的5毫秒，第一次执行task任务，以后每500毫秒执行一次
             timer.schedule(task, 5, 500);
         }
-    }
-    class MusicControl extends Binder {
-
-        Random r=new Random();
-        int index=r.nextInt(fields.length)+0;
-        String name="";
-        String save;
-        String[] list;
-        String nextname="";
-        public void play() {
-            try {
-                player.reset();//重置音乐播放器
-                //加载多媒体文件
-                /*for (int i=0;i<fields.length;i++){//点击收藏中的内容
-                    if (fields[i].getName().equals(save)){index=i;}
-
-                }*/
-                /*player = MediaPlayer.create(getApplicationContext(), fields[index].getInt(R.raw.class));
-                name=fields[index].getName();
-                player.start();//播放音乐
-                */
-
-                //从高翔端传来两个参数，一个为空，一个不为空，用不为空的那一个Emotion
-                AssetManager am = getAssets();
-                list=am.list("happy/");
-                AssetFileDescriptor afd=am.openFd("happy/"+list[index]);
-                name=list[index].substring(0,list[index].indexOf("."));
-                if (index==list.length-1) {
-                    nextname = list[0].substring(0, list[0].indexOf("."));
-                }
-                else {nextname=list[index+1].substring(0,list[index+1].indexOf("."));}
-                player.setDataSource(afd.getFileDescriptor(),afd.getStartOffset(),afd.getLength());
-                player.prepare();
-                player.start();
-                addTimer();     //添加计时器
-                player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        next();
-
-                    }
-                });
-                //Toast.makeText(MusicService.this,"有文件",Toast.LENGTH_SHORT).show();
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        public void pausePlay() {
-
-            player.pause();           //暂停播放音乐
-        }
-        public void continuePlay() {
-
-            player.start();           //继续播放音乐
-        }
-        public void seekTo(int progress) {
-            player.seekTo(progress);//设置音乐的播放位置
-        }
-        public void next(){
-            index++;
-            if(index==fields.length){
-                index=0;
-            }
-            if(player.isPlaying()){
-                player.stop();
-            }
-            play();
-
-        }
-
     }
     @Override
     public void onDestroy() {

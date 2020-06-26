@@ -36,7 +36,6 @@ public class ServiceActivity extends AppCompatActivity implements View.OnClickLi
     MyServiceConn conn;
     Intent intent;
     private boolean isUnbind = false;//记录服务是否被解绑
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,20 +56,26 @@ public class ServiceActivity extends AppCompatActivity implements View.OnClickLi
         intent = new Intent(this, MusicService.class);//创建意图对象
         conn = new MyServiceConn();//创建服务连接对象
         bindService(intent, conn, BIND_AUTO_CREATE);  //绑定服务
+
         //为滑动条添加事件监听
         sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean
                     fromUser) {                          //滑动条进度改变时，会调用此方法
-                if (progress == seekBar.getMax()) { //当滑动条滑到末端时，结束动画
-                    //animator.pause();                   //停止播放动画
+                    //停止播放动画
+                    Toast.makeText(ServiceActivity.this," "+progress+musicControl.name,Toast.LENGTH_SHORT).show();
                     ImageView imageView=(ImageView)findViewById(R.id.iv_music);//更改图片
-                    resID = getResources().getIdentifier(musicControl.nextname, "drawable","com.ztian.service");
+                    resID = getResources().getIdentifier(musicControl.name, "drawable","com.ztian.service");
                     imageView.setImageResource(resID);
-                }
+                    if (musicControl.s!=""){
+                        musicControl.stopPlay();
+                        musicControl.play();
+                        musicControl.s="";
+                    }
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {//滑动条开始滑动时调用
+
             }
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) { //滑动条停止滑动时调用
@@ -80,7 +85,6 @@ public class ServiceActivity extends AppCompatActivity implements View.OnClickLi
             }
         });
 
-
         animator = ObjectAnimator.ofFloat(iv_music, "rotation", 0f, 360.0f);
         animator.setDuration(10000);  //动画旋转一周的时间为10秒
         animator.setInterpolator(new LinearInterpolator());
@@ -88,7 +92,7 @@ public class ServiceActivity extends AppCompatActivity implements View.OnClickLi
     }
     public static Handler handler = new Handler() {//创建消息处理器对象
         //在主线程中处理从子线程发送过来的消息
-        @Override
+        @Override                      //广州研究院     秦凡
         public void handleMessage(Message msg) {            //设置进度条的进度问题
             Bundle bundle = msg.getData(); //获取从子线程发送过来的音乐播放进度
             int duration = bundle.getInt("duration");                  //歌曲的总时长
@@ -148,8 +152,7 @@ public class ServiceActivity extends AppCompatActivity implements View.OnClickLi
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_pause:               //暂停按钮点击事件
-
-                if(y==0){
+                if(y==0||musicControl.s!=""){
                     findViewById(R.id.btn_pause).setBackgroundResource(R.drawable.start);
                     musicControl.pausePlay();     //暂停播放音乐
                     animator.pause();
@@ -159,6 +162,7 @@ public class ServiceActivity extends AppCompatActivity implements View.OnClickLi
                     findViewById(R.id.btn_pause).setBackgroundResource(R.drawable.stop);
                     if(x==0){
                         musicControl.play();//播放
+                        Toast.makeText(ServiceActivity.this," "+musicControl.index+"和"+resID,Toast.LENGTH_SHORT).show();
                         ImageView imageView=(ImageView)findViewById(R.id.iv_music);//更改图片
                         resID = getResources().getIdentifier(musicControl.name, "drawable","com.ztian.service");
                         imageView.setImageResource(resID);
@@ -168,6 +172,7 @@ public class ServiceActivity extends AppCompatActivity implements View.OnClickLi
                     }
                     musicControl.continuePlay();//继续播放
                     animator.start();
+                    Toast.makeText(ServiceActivity.this," "+musicControl.index+"和",Toast.LENGTH_SHORT).show();
                     y = 0;
                 }
                 if(helper.findname(musicControl.name)==true)

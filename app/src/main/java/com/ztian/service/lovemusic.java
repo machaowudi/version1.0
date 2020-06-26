@@ -3,14 +3,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +26,12 @@ public class lovemusic extends AppCompatActivity  {
     private ListView listView;
     fragment fmm=new fragment();
     Myhelper helper = new Myhelper(lovemusic.this);
+    MusicService ms=new MusicService();
+    String lovename="";
+
+    public lovemusic() throws IOException {
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,6 +43,12 @@ public class lovemusic extends AppCompatActivity  {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> arg0, View view, int position, long id){
                //传数据
+                TextView t1=(TextView) view.findViewById(R.id.name);
+               lovename=t1.getText().toString();
+
+                Intent intent=new Intent(lovemusic.this,MusicService.class);
+                intent.putExtra("name",lovename);
+                startService(intent);
 
             }
         });

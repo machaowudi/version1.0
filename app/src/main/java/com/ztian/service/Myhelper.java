@@ -77,7 +77,7 @@ public class Myhelper extends SQLiteOpenHelper {
         boolean sum=false;
         Cursor cursor = db.query("musiclove", null, "name=?", new String[]{name},null, null, null);
         if (cursor.getCount() != 0){
-           sum=true;
+           sum=true;//如果搜寻到，那说明已收藏
         }
         cursor.close();
         db.close();
