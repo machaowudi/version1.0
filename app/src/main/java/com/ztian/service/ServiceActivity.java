@@ -26,7 +26,9 @@ public class ServiceActivity extends AppCompatActivity implements View.OnClickLi
 {
     int x=0;
     int y=1;
+    int stop=0;
     int resID;
+    String save=null;
     ArrayList List=new ArrayList();
     Myhelper helper = new Myhelper(this);
     private static SeekBar sb;
@@ -56,22 +58,37 @@ public class ServiceActivity extends AppCompatActivity implements View.OnClickLi
         intent = new Intent(this, MusicService.class);//创建意图对象
         conn = new MyServiceConn();//创建服务连接对象
         bindService(intent, conn, BIND_AUTO_CREATE);  //绑定服务
-
         //为滑动条添加事件监听
         sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean
                     fromUser) {                          //滑动条进度改变时，会调用此方法
                     //停止播放动画
-                    Toast.makeText(ServiceActivity.this," "+progress+musicControl.name,Toast.LENGTH_SHORT).show();
+                Intent intent1 = getIntent();
+                if(stop==0){
+                save=intent1.getStringExtra("name");
+                }
+                    Toast.makeText(ServiceActivity.this," "+progress+save,Toast.LENGTH_SHORT).show();
+                    if (save!=null){
+                        musicControl.s=save;
+                        if(stop==0) {
+                            findViewById(R.id.btn_pause).performClick();
+                            save=null;
+                            musicControl.s = "";
+                            stop=1;
+                        }
+                    }
                     ImageView imageView=(ImageView)findViewById(R.id.iv_music);//更改图片
                     resID = getResources().getIdentifier(musicControl.name, "drawable","com.ztian.service");
                     imageView.setImageResource(resID);
-                    if (musicControl.s!=""){
+                if(helper.findname(musicControl.name)==true)//收藏图标的状态
+                    findViewById(R.id.btn_save).setBackgroundResource(R.drawable.save2);
+                else findViewById(R.id.btn_save).setBackgroundResource(R.drawable.save1);
+                    /*if (musicControl.s!=""){
                         musicControl.stopPlay();
                         musicControl.play();
                         musicControl.s="";
-                    }
+                    }*/
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {//滑动条开始滑动时调用
@@ -152,7 +169,7 @@ public class ServiceActivity extends AppCompatActivity implements View.OnClickLi
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_pause:               //暂停按钮点击事件
-                if(y==0||musicControl.s!=""){
+                if(y==0){//||musicControl.s!=""
                     findViewById(R.id.btn_pause).setBackgroundResource(R.drawable.start);
                     musicControl.pausePlay();     //暂停播放音乐
                     animator.pause();
@@ -168,11 +185,10 @@ public class ServiceActivity extends AppCompatActivity implements View.OnClickLi
                         imageView.setImageResource(resID);
                         animator.start();
                         x=1;
-
                     }
                     musicControl.continuePlay();//继续播放
                     animator.start();
-                    Toast.makeText(ServiceActivity.this," "+musicControl.index+"和",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ServiceActivity.this," "+musicControl.index+"和"+musicControl.name,Toast.LENGTH_SHORT).show();
                     y = 0;
                 }
                 if(helper.findname(musicControl.name)==true)
@@ -184,7 +200,6 @@ public class ServiceActivity extends AppCompatActivity implements View.OnClickLi
                 musicControl.next();
                 findViewById(R.id.btn_pause).setBackgroundResource(R.drawable.stop);
                 y=0;
-
                 //换图片
                 ImageView imageView=(ImageView)findViewById(R.id.iv_music);
                 resID = getResources().getIdentifier(musicControl.name, "drawable","com.ztian.service");

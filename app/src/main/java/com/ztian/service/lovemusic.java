@@ -26,7 +26,6 @@ public class lovemusic extends AppCompatActivity  {
     private ListView listView;
     fragment fmm=new fragment();
     Myhelper helper = new Myhelper(lovemusic.this);
-    MusicService ms=new MusicService();
     String lovename="";
 
     public lovemusic() throws IOException {
@@ -46,10 +45,12 @@ public class lovemusic extends AppCompatActivity  {
                 TextView t1=(TextView) view.findViewById(R.id.name);
                lovename=t1.getText().toString();
 
-                Intent intent=new Intent(lovemusic.this,MusicService.class);
+               /* Intent intent=new Intent(lovemusic.this,MusicService.class);
                 intent.putExtra("name",lovename);
-                startService(intent);
-
+                startService(intent);*/
+                Intent intent=new Intent(lovemusic.this,ServiceActivity.class);
+                intent.putExtra("name",lovename);
+                startActivity(intent);
             }
         });
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){

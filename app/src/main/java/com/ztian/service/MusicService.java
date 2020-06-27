@@ -28,18 +28,17 @@ public class MusicService extends Service {
     public MusicService() throws IOException {}
     public String save="";
     Field[]fields=R.raw.class.getDeclaredFields();   //获取raw底下的文件
-    @Override
+    /*@Override
     public int onStartCommand(Intent intent,int flags,int startId){
         super.onStartCommand(intent, flags,startId);
         save=intent.getStringExtra("name");
         System.out.println("传回来的值："+save);
         return super.onStartCommand(intent, flags, startId);
-    }
+    }*/
     @Override
     public IBinder onBind(Intent intent) {
         return new MusicControl();
     }
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -53,24 +52,23 @@ public class MusicService extends Service {
         String name="";
         String[] list;
         String nextname="";
-        String s=save;
+        String s="";
         public void play() {
             try {
+
                 player.reset();//重置音乐播放器
                 //加载多媒体文件
                 /*for (int i=0;i<fields.length;i++){//点击收藏中的内容
                     if (fields[i].getName().equals(save)){index=i;}
-
                 }*/
                 /*player = MediaPlayer.create(getApplicationContext(), fields[index].getInt(R.raw.class));
                 name=fields[index].getName();
                 player.start();//播放音乐
                 */
-
                 //从高翔端传来两个参数，一个为空，一个不为空，用不为空的那一个Emotion
                 AssetManager am = getAssets();
                 list=am.list("happy/");
-                if(save=="") {
+                if(s=="") {
                     AssetFileDescriptor afd = am.openFd("happy/" + list[index]);
                     name = list[index].substring(0, list[index].indexOf("."));
                     if (index == list.length - 1) {
@@ -81,17 +79,17 @@ public class MusicService extends Service {
                     player.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
                     player.prepare();
                     player.start();
+                    s=save;
                 }
                 else {
-
-                    AssetFileDescriptor afd = am.openFd("happy/" + save+".mp3");
-                    name=save;
+                    name=s;
+                    AssetFileDescriptor afd = am.openFd("happy/" + s+".mp3");
                     player.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
                     player.prepare();
                     player.start();
+                    //s=save;
                     System.out.println("save的值"+save);
-                    //save="";
-                    index--;
+                    save="";
                 }
 
                 player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
